@@ -95,6 +95,34 @@ regd_users.put('/auth/review/:isbn', (req, res) => {
 	);
 });
 
+regd_users.delete('/auth/review/:isbn', (req, res) => {
+	const isbn = req.params.isbn;
+	const username = req.session.authorization.username;
+
+	if (!username) {
+		res
+			.status(401)
+			.send('You must login to delete a review');
+	}
+
+	if (!books[isbn]) {
+		res
+			.status(404)
+			.send(
+				'Book not found. Please enter the correct isbn'
+			);
+	}
+
+	if (books[isbn].reviews[username]) {
+		delete books[isbn].reviews[username];
+		res.send(
+			`Your review for book with ISBN ${isbn} has been deleted.`
+		);
+	} else {
+		res.status(404).send('You have not reviewed this book');
+	}
+});
+
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
 module.exports.users = users;
